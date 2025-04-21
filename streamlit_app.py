@@ -18,10 +18,14 @@ def translate_to_english(japanese_text):
     )
     return response.choices[0].message.content.strip()
 
-# 英訳から英語キーワードだけ抽出
+# 英訳からシンプルな英語キーワードを抽出（最初に出現する英単語だけ使う）
 def extract_english_phrase(text):
-    matches = re.findall(r"[A-Za-z0-9+\- ]+", text)
-    return " ".join(matches).strip()
+    matches = re.findall(r'[A-Za-z0-9+\- ]{3,}', text)
+    if matches:
+        # 一番短くてアルファベットらしい語を選ぶ
+        matches = sorted(matches, key=lambda x: (len(x), x))
+        return matches[0].strip()
+    return text
 
 # ClinicalTrials.gov API 呼び出し
 def fetch_trials(condition, other_terms, location):
